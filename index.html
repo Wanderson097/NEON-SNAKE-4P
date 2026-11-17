@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="author" content="Wanderson Ferreira">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a1a'/%3E%3Cpath d='M44 18C44 10 20 10 20 22C20 32 44 30 44 42C44 54 20 54 20 46' fill='none' stroke='cyan' stroke-width='7' stroke-linecap='round'/%3E%3Ccircle cx='44' cy='18' r='6' fill='hotpink'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#07070f">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NEON SNAKE 4P — Cobrinha Multiplayer</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07070f;--card:#12122200;--txt:#eef;--mut:#8a8aad;--p1:#00f5ff;--p2:#ff2d95;--p3:#b6ff00;--p4:#ffb300}
+*{box-sizing:border-box;margin:0}
+body{background:radial-gradient(ellipse at 50% -10%,#1c1050 0,#07070f 60%) fixed;color:var(--txt);font-family:Inter,system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:18px 12px}
+h1{font-family:Orbitron,sans-serif;font-weight:900;font-size:clamp(26px,5vw,48px);letter-spacing:3px;background:linear-gradient(90deg,var(--p1),var(--p2),var(--p4),var(--p3));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px #8a3cff88)}
+.sub{color:var(--mut);margin:4px 0 14px;font-size:14px}
+#score{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:12px;width:100%;max-width:820px}
+.sc{flex:1;min-width:150px;background:#ffffff08;border:1px solid var(--c);border-radius:12px;padding:8px 12px;box-shadow:0 0 14px color-mix(in srgb,var(--c) 35%,transparent);transition:opacity .3s}
+.sc.dead{opacity:.35}
+.sc b{font-family:Orbitron,sans-serif;color:var(--c);font-size:13px;display:block}
+.sc span{font-family:Orbitron,sans-serif;font-size:22px}
+.sc small{color:var(--mut);float:right;margin-top:8px}
+#wrap{position:relative;width:100%;max-width:820px}
+canvas{width:100%;display:block;border-radius:14px;border:2px solid #3a2a8a;box-shadow:0 0 40px #6a3cff55,inset 0 0 30px #000;background:#05050c}
+#ov{position:absolute;inset:0;border-radius:14px;background:#05050ccc;backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:16px}
+#ov.hide{display:none}
+#ov h2{font-family:Orbitron,sans-serif;font-size:clamp(22px,4vw,34px)}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+button{font-family:Orbitron,sans-serif;font-weight:800;cursor:pointer;border:2px solid var(--p1);background:#00f5ff18;color:var(--txt);padding:10px 18px;border-radius:10px;font-size:15px;transition:.2s}
+button:hover,button.on{background:var(--p1);color:#000;box-shadow:0 0 20px var(--p1)}
+#go{border-color:var(--p2);background:var(--p2);color:#fff;font-size:18px;padding:13px 34px;box-shadow:0 0 24px var(--p2)}
+#go:hover{transform:scale(1.06);background:var(--p2);color:#fff}
+.keys{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 18px;font-size:13px;color:var(--mut)}
+.keys i{font-style:normal;font-weight:600;color:var(--c)}
+#nav{width:100%;max-width:820px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding:8px 12px;background:#ffffff08;border:1px solid #3a2a8a;border-radius:12px}
+.logo{font-family:Orbitron,sans-serif;font-weight:900;letter-spacing:2px;color:var(--p1)}
+.nb{padding:7px 12px;font-size:12px}
+.by{color:var(--mut);font-size:13px;margin-bottom:2px}.by b{color:var(--p4)}
+#md{position:fixed;inset:0;background:#000b;backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:14px;z-index:9}
+#md.hide{display:none}
+.box{position:relative;background:#101024;border:2px solid var(--p2);border-radius:16px;box-shadow:0 0 40px #ff2d9566;max-width:460px;width:100%;max-height:90vh;overflow:auto;padding:22px;display:flex;flex-direction:column;gap:10px}
+.box h2{font-family:Orbitron,sans-serif;font-size:20px}.box p,.box li{color:var(--mut);font-size:14px;line-height:1.5}.box ul{padding-left:18px}
+.x{position:absolute;top:10px;right:10px;padding:4px 10px;font-size:13px;border-color:var(--p2);background:none}
+.box input,.box textarea{background:#05050c;color:var(--txt);border:1px solid #3a2a8a;border-radius:8px;padding:9px;font:inherit;font-size:14px;width:100%}
+.box textarea{min-height:90px;resize:vertical}
+.mail{color:var(--p1);font-weight:600;word-break:break-all}
+details{color:var(--mut);font-size:13px}summary{cursor:pointer;color:var(--txt);margin:4px 0}
+footer a{color:var(--p1)}footer b{color:var(--p4)}
+.lg{width:34px;height:34px;vertical-align:middle;margin-right:8px;filter:drop-shadow(0 0 8px #00f5ff99)}
+#spl{position:fixed;inset:0;z-index:20;background:radial-gradient(ellipse at 50% 30%,#1c1050 0,#07070f 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .6s;cursor:pointer}
+#spl.out{opacity:0;pointer-events:none}
+#spl .big{width:min(40vw,170px);height:min(40vw,170px);filter:drop-shadow(0 0 28px #ff2d95aa);animation:pop 1.2s ease-out both,glow 1.6s ease-in-out infinite alternate}
+#spl h2{font-family:Orbitron,sans-serif;font-weight:900;font-size:clamp(24px,6vw,44px);letter-spacing:4px;background:linear-gradient(90deg,#00f5ff,#ff2d95,#ffb300);-webkit-background-clip:text;background-clip:text;color:transparent}
+#spl p{color:var(--mut);font-size:14px}#spl p b{color:var(--p4)}
+.ld{width:min(60vw,240px);height:5px;border-radius:5px;background:#ffffff14;overflow:hidden}.ld i{display:block;height:100%;width:0;background:linear-gradient(90deg,#00f5ff,#ff2d95);animation:ld 2.1s ease-out forwards}
+@keyframes pop{from{transform:scale(.3) rotate(-25deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes glow{to{filter:drop-shadow(0 0 40px #00f5ffcc)}}
+@keyframes ld{to{width:100%}}
+footer{color:var(--mut);font-size:12px;margin-top:14px;text-align:center}
+kbd{background:#ffffff14;border-radius:5px;padding:1px 6px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="lgg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00f5ff"/><stop offset="1" stop-color="#b6ff00"/></linearGradient></defs><symbol id="lg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0a0a1a" stroke="#3a2a8a" stroke-width="2"/><path d="M44 18C44 10 20 10 20 22C20 32 44 30 44 42C44 54 20 54 20 46" fill="none" stroke="url(#lgg)" stroke-width="7" stroke-linecap="round"/><circle cx="44" cy="18" r="6" fill="#ff2d95"/><circle cx="46" cy="16.5" r="1.5" fill="#000"/></symbol></svg>
+<div id="spl"><svg class="big"><use href="#lg"/></svg><h2>NEON SNAKE 4P</h2><p>Criado por <b>Wanderson Ferreira</b></p><div class="ld"><i></i></div></div>
+<nav id="nav"><span class="logo"><svg class="lg"><use href="#lg"/></svg>NEON SNAKE</span><div class="row"><button class="nb" data-a="play">🎮 Jogar</button><button class="nb" data-a="how">📖 Como jogar</button><button class="nb" data-a="sup">🛟 Suporte</button></div></nav>
+<h1>NEON SNAKE 4P</h1>
+<p class="by">Criado por <b>Wanderson Ferreira</b></p>
+<p class="sub">A cobrinha multiplayer: até 4 jogadores no mesmo teclado. Sobreviva, coma e domine a arena!</p>
+<div id="score"></div>
+<div id="wrap">
+  <canvas id="c" width="800" height="520"></canvas>
+  <div id="ov">
+    <h2 id="t">ESCOLHA OS JOGADORES</h2>
+    <div class="row" id="np"></div>
+    <div class="keys" id="keys"></div>
+    <p style="color:var(--mut);font-size:13px">🍎 +10 pts &nbsp; ⭐ dourada +30 pts &nbsp; 🏆 vencedor da rodada +50 pts<br>⚡ moeda roxa: 15s para comer as outras cobras!</p>
+    <button id="go">▶ JOGAR</button>
+    <p style="color:var(--mut);font-size:12px"><kbd>Enter</kbd> inicia / próxima rodada · <kbd>Espaço</kbd> pausa · <kbd>Esc</kbd> menu</p>
+  </div>
+</div>
+<footer>Criado por <b>Wanderson Ferreira</b> · Contato: <a href="mailto:wandersonfrreira110k@gmail.com">wandersonfrreira110k@gmail.com</a><br>© 2026 Neon Snake 4P · Todos os direitos reservados</footer>
+<div id="md" class="hide"><div class="box"><button class="x" id="xm">✕</button>
+<div id="how"><h2>📖 Como jogar</h2>
+<ul><li><b>P1:</b> W A S D</li><li><b>P2:</b> setas</li><li><b>P3:</b> I J K L</li><li><b>P4:</b> T F G H</li></ul>
+<p>Coma 🍎 para crescer e ⭐ para ganhar mais pontos. Bater na parede, em si mesmo ou em outra cobra elimina você. O último vivo vence a rodada.</p>
+<p>⚡ A moeda roxa deixa você comer as outras cobras por 15 segundos.</p></div>
+<div id="sup"><h2>🛟 Suporte</h2>
+<p>Achou um bug, tem dúvida ou sugestão? Fale com o criador, Wanderson Ferreira:</p>
+<a class="mail" href="mailto:wandersonfrreira110k@gmail.com">✉ wandersonfrreira110k@gmail.com</a>
+<button id="cp">Copiar e-mail</button>
+<input id="sn" placeholder="Seu nome" maxlength="60">
+<textarea id="sm" placeholder="Descreva o problema ou sugestão"></textarea>
+<button id="se" style="border-color:var(--p2)">Enviar por e-mail</button>
+<details><summary>Os controles não respondem</summary>Clique na tela do jogo e use o teclado. Em celular, use um computador: o jogo é por teclado.</details>
+<details><summary>Quantas pessoas podem jogar?</summary>De 1 a 4, no mesmo computador, cada uma com suas teclas.</details>
+<details><summary>Como pausar?</summary>Pressione Espaço. Esc volta ao menu.</details></div>
+</div></div>
+<script>
+const COLS=40,ROWS=26,S=20,cv=document.getElementById('c'),x=cv.getContext('2d');
+const DEF=[
+ {n:'P1',c:'#00f5ff',k:{w:[0,-1],s:[0,1],a:[-1,0],d:[1,0]},l:'W A S D',s:[4,5,1,0]},
+ {n:'P2',c:'#ff2d95',k:{arrowup:[0,-1],arrowdown:[0,1],arrowleft:[-1,0],arrowright:[1,0]},l:'← ↑ ↓ →',s:[35,20,-1,0]},
+ {n:'P3',c:'#b6ff00',k:{i:[0,-1],k:[0,1],j:[-1,0],l:[1,0]},l:'I J K L',s:[35,5,0,1]},
+ {n:'P4',c:'#ffb300',k:{t:[0,-1],g:[0,1],f:[-1,0],h:[1,0]},l:'T F G H',s:[4,20,0,-1]}];
+let N=2,P=[],foods=[],state='menu',acc=0,last=0,wins=[0,0,0,0],scores=[0,0,0,0],particles=[];
+const ov=document.getElementById('ov'),T=document.getElementById('t');
+// áudio
+let ac;function beep(f,d=.08,t='square'){try{ac=ac||new AudioContext();const o=ac.createOscillator(),g=ac.createGain();o.type=t;o.frequency.value=f;g.gain.value=.05;o.connect(g);g.connect(ac.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+d);o.stop(ac.currentTime+d)}catch(e){}}
+// menu
+const np=document.getElementById('np');
+[1,2,3,4].forEach(n=>{const b=document.createElement('button');b.textContent=n+(n>1?' JOGADORES':' JOGADOR');b.onclick=()=>{N=n;sel()};np.appendChild(b)});
+function sel(){[...np.children].forEach((b,i)=>b.classList.toggle('on',i+1==N));document.getElementById('keys').innerHTML=DEF.slice(0,N).map(d=>`<div style="--c:${d.c}"><i>${d.n}</i> ${d.l}</div>`).join('')}
+sel();
+document.getElementById('go').onclick=()=>start(true);
+function hud(){document.getElementById('score').innerHTML=P.map(p=>`<div class="sc ${p.alive?'':'dead'}" style="--c:${p.c}"><b>${p.n}${p.pw>0?' ⚡'+Math.ceil(p.pw/1000)+'s':''}</b><span>${scores[p.i]}</span><small>🏆 ${wins[p.i]}</small></div>`).join('')}
+function free(a,b){return !P.some(p=>p.body.some(s=>s[0]==a&&s[1]==b))&&!foods.some(f=>f.x==a&&f.y==b)}
+function spawn(pw){let t=0;while(t++<200){const a=Math.random()*COLS|0,b=Math.random()*ROWS|0;if(free(a,b)){foods.push({x:a,y:b,g:!pw&&Math.random()<.15,p:!!pw});return}}}
+function start(reset){
+  if(reset){wins=[0,0,0,0];scores=[0,0,0,0]}
+  P=DEF.slice(0,N).map((d,i)=>{const[sx,sy,dx,dy]=d.s;return{i,n:d.n,c:d.c,k:d.k,alive:true,grow:0,pw:0,dir:[dx,dy],nd:[dx,dy],body:[[sx,sy],[sx-dx,sy-dy],[sx-2*dx,sy-2*dy]]}});
+  foods=[];for(let i=0;i<N+1;i++)spawn();
+  state='play';ov.classList.add('hide');hud();last=performance.now();acc=0;beep(520,.1);
+}
+function end(win){
+  state='over';
+  if(N>1&&win){scores[win.i]+=50;wins[win.i]++;T.innerHTML=`🏆 <span style="color:${win.c}">${win.n}</span> VENCEU A RODADA!`}
+  else T.textContent=N>1?'EMPATE!':'FIM DE JOGO';
+  hud();beep(N>1?880:200,.4,'sawtooth');
+  document.getElementById('np').style.display='none';document.getElementById('keys').style.display='none';
+  document.getElementById('go').textContent='▶ PRÓXIMA RODADA';
+  ov.classList.remove('hide');
+}
+function menu(){state='menu';T.textContent='ESCOLHA OS JOGADORES';document.getElementById('np').style.display='';document.getElementById('keys').style.display='';document.getElementById('go').textContent='▶ JOGAR';ov.classList.remove('hide')}
+document.getElementById('go').addEventListener('click',()=>{});
+function tick(){
+  const al=P.filter(p=>p.alive);
+  al.forEach(p=>{const[a,b]=p.nd;if(!(a==-p.dir[0]&&b==-p.dir[1]))p.dir=[a,b]});
+  const nh=al.map(p=>[p.body[0][0]+p.dir[0],p.body[0][1]+p.dir[1]]);
+  const dead=new Set(),cuts=[];
+  al.forEach((p,i)=>{const[a,b]=nh[i];
+    if(a<0||b<0||a>=COLS||b>=ROWS){dead.add(p);return}
+    al.forEach((q,j)=>{if(j!=i&&nh[j][0]==a&&nh[j][1]==b&&!(p.pw>0&&!(q.pw>0)))dead.add(p)});
+    P.forEach(q=>{if(!q.alive)return;
+      q.body.forEach((s,j)=>{
+        if(s[0]!=a||s[1]!=b)return;
+        if(j==q.body.length-1&&!q.grow)return;
+        if(q==p)dead.add(p);
+        else if(p.pw>0&&!(q.pw>0))cuts.push([q,j,p]);
+        else dead.add(p)})})});
+  cuts.forEach(([q,j,p])=>{
+    if(!q.alive||j>=q.body.length)return;
+    const rem=q.body.splice(j);
+    rem.forEach(s=>boom(s[0],s[1],q.c,2));
+    p.grow+=rem.length;scores[p.i]+=rem.length*5;beep(300,.15,'sawtooth');
+    if(!q.body.length){q.alive=false;dead.delete(q)}
+  });
+  al.forEach((p,i)=>{if(dead.has(p)||!p.alive)return;
+    p.body.unshift(nh[i]);
+    const fi=foods.findIndex(f=>f.x==nh[i][0]&&f.y==nh[i][1]);
+    if(fi>=0){const f=foods.splice(fi,1)[0];
+      if(f.p){p.pw=15000;scores[p.i]+=20;boom(f.x,f.y,'#b455ff',14);beep(1100,.25,'triangle')}
+      else{scores[p.i]+=f.g?30:10;p.grow+=f.g?3:1;boom(f.x,f.y,f.g?'#ffd400':'#ff4d4d');beep(f.g?900:600);spawn()}
+      hud()}
+    if(p.grow>0)p.grow--;else p.body.pop()});
+  dead.forEach(p=>{p.alive=false;p.body.forEach(s=>boom(s[0],s[1],p.c,1));p.body=[];beep(150,.3,'sawtooth')});
+  if(N>1&&!foods.some(f=>f.p)&&!P.some(p=>p.pw>0)&&Math.random()<.012)spawn(true);
+  if(dead.size||cuts.length)hud();
+  const left=P.filter(p=>p.alive);
+  if(N==1?left.length==0:left.length<=1)end(left[0]);
+}
+function boom(a,b,c,n=6){for(let i=0;i<n;i++)particles.push({x:a*S+10,y:b*S+10,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,l:1,c})}
+function draw(){
+  x.fillStyle='#05050c';x.fillRect(0,0,800,520);
+  x.strokeStyle='#ffffff08';x.lineWidth=1;x.beginPath();
+  for(let i=0;i<=COLS;i++){x.moveTo(i*S,0);x.lineTo(i*S,520)}for(let j=0;j<=ROWS;j++){x.moveTo(0,j*S);x.lineTo(800,j*S)}x.stroke();
+  const t=performance.now()/200;
+  foods.forEach(f=>{if(f.p){const r=8+Math.sin(t*2)*2;x.shadowBlur=26;x.shadowColor='#b455ff';x.fillStyle='#b455ff';x.beginPath();x.arc(f.x*S+10,f.y*S+10,r,0,7);x.fill();x.shadowBlur=0;x.fillStyle='#fff';x.font='bold 13px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('⚡',f.x*S+10,f.y*S+11);return}const r=6+Math.sin(t+f.x)*1.5+(f.g?2:0);x.shadowBlur=18;x.shadowColor=f.g?'#ffd400':'#ff4d4d';x.fillStyle=f.g?'#ffd400':'#ff4d4d';x.beginPath();x.arc(f.x*S+10,f.y*S+10,r,0,7);x.fill()});
+  P.forEach(p=>{if(!p.alive)return;const pc=p.pw>0&&(p.pw>3000||Math.floor(t)%2)?(Math.floor(t/2)%2?'#fff':'#b455ff'):p.c;x.shadowBlur=p.pw>0?26:14;x.shadowColor=pc;
+    p.body.forEach((s,j)=>{x.globalAlpha=Math.max(.45,1-j*.015);x.fillStyle=pc;x.beginPath();x.roundRect(s[0]*S+1,s[1]*S+1,S-2,S-2,j?5:8);x.fill()});
+    x.globalAlpha=1;x.shadowBlur=0;const h=p.body[0],[dx,dy]=p.dir,px=-dy,py=dx;
+    [-1,1].forEach(e=>{x.fillStyle='#000';x.beginPath();x.arc(h[0]*S+10+dx*3+px*e*4,h[1]*S+10+dy*3+py*e*4,2.4,0,7);x.fill()})});
+  x.shadowBlur=0;
+  particles=particles.filter(q=>q.l>0);particles.forEach(q=>{q.x+=q.vx;q.y+=q.vy;q.l-=.04;x.globalAlpha=q.l;x.fillStyle=q.c;x.fillRect(q.x,q.y,3,3)});x.globalAlpha=1;
+}
+let lastSec=0;
+function loop(now){
+  if(state=='play'){const dt=Math.min(now-last,100);acc+=dt;P.forEach(p=>{if(p.pw>0)p.pw=Math.max(0,p.pw-dt)});const sp=Math.max(125,205-Math.max(...scores)/8);while(acc>=sp&&state=='play'){acc-=sp;tick()}
+   const sec=P.reduce((a,p)=>a+Math.ceil(p.pw/1000),0);if(sec!=lastSec){lastSec=sec;hud()}}
+  last=now;draw();requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  if(/INPUT|TEXTAREA/.test(e.target.tagName))return;
+  if(!md.classList.contains('hide')){if(k=='escape')md.classList.add('hide');return}
+  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
+  if(k=='enter'&&state!='play'){state=='menu'?start(true):start(false);return}
+  if(k==' '){if(state=='play'){state='pause';T.textContent='⏸ PAUSADO';document.getElementById('np').style.display='none';document.getElementById('keys').style.display='none';ov.classList.remove('hide')}else if(state=='pause'){state='play';last=performance.now();ov.classList.add('hide')}return}
+  if(k=='escape'){menu();return}
+  if(state=='play')P.forEach(p=>{if(p.alive&&p.k[k])p.nd=p.k[k]});
+});
+document.getElementById('go').onclick=()=>{state=='menu'?start(true):start(false)};
+hud();
+const spl=document.getElementById('spl');function hideSpl(){spl.classList.add('out');setTimeout(()=>spl.remove(),700)}spl.onclick=hideSpl;setTimeout(hideSpl,2300);
+const md=document.getElementById('md'),EM='wandersonfrreira110k@gmail.com';
+function openM(w){if(state=='play'){state='pause';T.textContent='⏸ PAUSADO';document.getElementById('np').style.display='none';document.getElementById('keys').style.display='none';ov.classList.remove('hide')}
+  document.getElementById('how').style.display=w=='how'?'':'none';document.getElementById('sup').style.display=w=='sup'?'':'none';md.classList.remove('hide')}
+document.querySelectorAll('.nb').forEach(b=>b.onclick=()=>{const a=b.dataset.a;
+  if(a=='play'){md.classList.add('hide');if(state=='menu')start(true);else if(state=='over')start(false);else if(state=='pause'){state='play';last=performance.now();ov.classList.add('hide')}}
+  else openM(a)});
+document.getElementById('xm').onclick=()=>md.classList.add('hide');
+md.onclick=e=>{if(e.target==md)md.classList.add('hide')};
+document.getElementById('cp').onclick=function(){try{navigator.clipboard.writeText(EM).then(()=>this.textContent='✓ Copiado!')}catch(e){}};
+document.getElementById('se').onclick=()=>{const n=document.getElementById('sn').value.trim(),m=document.getElementById('sm').value.trim();
+  location.href='mailto:'+EM+'?subject='+encodeURIComponent('Suporte Neon Snake 4P'+(n?' - '+n:''))+'&body='+encodeURIComponent(m)};
+</script>
+</body>
+</html>
